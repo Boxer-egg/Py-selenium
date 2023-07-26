@@ -1,1 +1,2 @@
-Hello, world!
+公司没测试，隔一天就全量上线，写几个脚本，自动测试
+# Py-selenium
