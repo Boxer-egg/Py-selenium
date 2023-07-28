@@ -41,7 +41,7 @@ WebDriverWait(driver, 10).until(EC.presence_of_element_located(
     (By.CSS_SELECTOR, 'img[src="/agent/static/img/home/img_01.png"]')))
 
 # 选择InternalInfo文件内的CreateTemplateAddress命名的链接，内新建模板
-driver.get(InternalInfo.CreateTemplateAddress)
+driver.get(config.[CreateTemplateAddress])
 
 time.sleep(2)
 # 填写模板名称

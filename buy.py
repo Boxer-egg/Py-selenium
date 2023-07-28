@@ -1,10 +1,12 @@
 import time
 import yaml
+import logAndjump  # 登录和跳转函数
 from reportDoc import Report
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
-from selenium.webdriver.common.by import By
+from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.support import expected_conditions as EC
 
 # 创建一个新的浏览器实例
@@ -18,13 +20,8 @@ with open('config.yaml') as f:
 # 登录
 driver.get(config['AgentLoginLink'])
 time.sleep(0.5)
-username = driver.find_element(By.NAME, "username")
-password = driver.find_element(By.NAME, "password")
-username.send_keys(config['username'])
-password.send_keys(config['password'])
-password.send_keys(Keys.RETURN)
-print('登录成功，页面为：', config['AgentLoginLink'])
-#Report.add_line('登录成功，页面为：' + config['AgentLoginLink'])
+logANDjump.RunAgnetLogin(driver, config)
+# Report.add_line('登录成功，页面为：' + config['AgentLoginLink'])
 
 # 跳转到购买链接
 
@@ -33,7 +30,7 @@ time.sleep(1)
 
 driver.execute_script("window.open('about:blank', 'tab2');")
 driver.switch_to.window("tab2")
-driver.get(config['HomePage'])
+logAndjump.jumpHomePage(driver)
 
 # 搜索商品名
 time.sleep(0.5)
@@ -42,7 +39,7 @@ product_name = f"test{current_time}xn"
 search_box = driver.find_element(By.ID, "prefix")
 search_box.send_keys(product_name + ".com")
 print('搜索产品成功：', product_name)
-#Report.add_line('搜索产品成功：' + product_name)
+# Report.add_line('搜索产品成功：' + product_name)
 
 # 点击搜索
 query_button = driver.find_element(By.ID, "queryDomain")
@@ -75,27 +72,39 @@ checkout_button.click()
 # 等待链接跳转 或者页面元素有更新
 time.sleep(0.5)
 WebDriverWait(driver, 10).until(EC.presence_of_element_located(
-    (By.XPATH, config['readytopay'])))
+    (By.XPATH, config['ReadyToPay'])))
 
 # 单选模板
+time.sleep(1)
 template = driver.find_element(By.XPATH, config['TemplateName'])
 template.click()
-driver.execute_script("window.scrollBy(0, 100);")
+# driver.execute_script("window.scrollBy(0, 360);")
 
 
 # 勾选同意协议
-agree_checkbox = driver.find_element(By.XPATH, config['Agreement'])
-agree_checkbox.click()
+# agree_checkbox = driver.find_element(By.XPATH, config['Agreement'])
+# agree_checkbox.click()
+
+# 勾选同意协议
+checkbox = driver.find_element(By.CSS_SELECTOR, config['Agreement'])
+checkbox.location_once_scrolled_into_view  # scroll to the element
+actions = ActionChains(driver)
+actions.move_to_element(checkbox).click(checkbox).perform()
+
 
 # 点击“提交订单”按钮
 submit_order_button = driver.find_element(
     By.XPATH, '//button/span[text()="提交订单"]')
 submit_order_button.click()
 
+
 # 等待链接变化 或出现“确认支付”按钮
-time.sleep(1)
-WebDriverWait(driver, 10).until(EC.presence_of_element_located(
+confirm_payment_button = WebDriverWait(driver, 10).until(EC.presence_of_element_located(
     (By.XPATH, '//button/span[text()="确认支付"]')))
+
+confirm_payment_button.click()
+
+print('支付成功')
 
 # 打开管理列表，查看产品
 driver.execute_script("window.open('about:blank', 'tab3');")
@@ -106,6 +115,18 @@ driver.get(config['ManageList'])
 sort_button = WebDriverWait(driver, 10).until(
     EC.presence_of_element_located((By.XPATH, '//em[@data-id="apply_date:desc"]')))
 sort_button.click()
+
+#续费还没写
+
+#续费计算
+checkbox = WebDriverWait(driver, 10).until(
+    EC.presence_of_element_located((By.XPATH, "//span[contains(text(), '我已阅读，理解并确认以下协议内容')]")))
+checkbox.click()
+
+renew_button = WebDriverWait(driver, 10).until(
+    EC.presence_of_element_located((By.XPATH, "//button[contains(text(), '去结算')]")))
+renew_button.click()
+
 
 
 '''
