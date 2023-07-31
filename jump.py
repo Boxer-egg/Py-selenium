@@ -5,6 +5,9 @@ from selenium.webdriver.support.ui import Select
 
 
 def setup_browser():
+    '''
+    会设置浏览器到一个特定的状态（登录到网站）。
+    '''
     driver = webdriver.Firefox()
     driver.get(config['AgentLoginLink'])
     username = driver.find_element(By.NAME, "username")

@@ -20,7 +20,9 @@ with open('config.yaml') as f:
 # 登录
 driver.get(config['AgentLoginLink'])
 time.sleep(0.5)
-logANDjump.RunAgnetLogin(driver, config)
+logAndjump.RunAgnetLogin(driver, config['username1'], config['password1'])
+
+print('登录成功时间', time.ctime())
 # Report.add_line('登录成功，页面为：' + config['AgentLoginLink'])
 
 # 跳转到购买链接
@@ -116,9 +118,9 @@ sort_button = WebDriverWait(driver, 10).until(
     EC.presence_of_element_located((By.XPATH, '//em[@data-id="apply_date:desc"]')))
 sort_button.click()
 
-#续费还没写
+# 续费还没写
 
-#续费计算
+# 续费计算
 checkbox = WebDriverWait(driver, 10).until(
     EC.presence_of_element_located((By.XPATH, "//span[contains(text(), '我已阅读，理解并确认以下协议内容')]")))
 checkbox.click()
@@ -126,7 +128,6 @@ checkbox.click()
 renew_button = WebDriverWait(driver, 10).until(
     EC.presence_of_element_located((By.XPATH, "//button[contains(text(), '去结算')]")))
 renew_button.click()
-
 
 
 '''
