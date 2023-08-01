@@ -8,7 +8,12 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import Select
 from selenium.common.exceptions import NoAlertPresentException
 from selenium.common.exceptions import NoSuchElementException
+from selenium.webdriver.firefox.options import Options
 
+
+# options = Options()
+# options.add_argument("--headless")
+# driver = webdriver.Firefox(options=options)
 
 # 创建一个新的浏览器实例
 driver = webdriver.Firefox()
@@ -35,13 +40,13 @@ password.send_keys(Keys.RETURN)  # 摁下回车
 
 time.sleep(3)
 # 等待URL变化
-#WebDriverWait(driver, 12).until(EC.url_changes(driver.current_url))
+# WebDriverWait(driver, 12).until(EC.url_changes(driver.current_url))
 # 等待头像加载出现
 WebDriverWait(driver, 10).until(EC.presence_of_element_located(
     (By.CSS_SELECTOR, 'img[src="/agent/static/img/home/img_01.png"]')))
 
 # 选择InternalInfo文件内的CreateTemplateAddress命名的链接，内新建模板
-driver.get(config.[CreateTemplateAddress])
+driver.get(config['CreateTemplateAddress'])
 
 time.sleep(2)
 # 填写模板名称
@@ -149,9 +154,10 @@ time.sleep(1)
 driver.find_element(By.ID, "cityLable").click()
 
 # 找到 "北京市" 的 <li> 元素并点击
-#driver.find_element(By.XPATH, '//li[text()="北京市"]').click()
+# driver.find_element(By.XPATH, '//li[text()="北京市"]').click()
 #<li onclick="setCity('110100')" selectid="110100" class="selected">北京市</li>
 driver.find_element(By.XPATH, '//li[@selectid="110100"]').click()
+driver.execute_script("window.scrollBy(0, 100);")
 
 
 # 填写邮政编码
@@ -181,8 +187,8 @@ time.sleep(0.5)
 
 # 填写域名所有人（英文）
 domain_owner = driver.find_element(By.ID, "organizeNameUk")
-domain_owner.send_keys("WXZ")
-driver.execute_script("window.scrollBy(0, 100);")
+domain_owner.send_keys("NCS")
+driver.execute_script("window.scrollBy(0, 120);")
 
 
 # 填写域名联系人（英文）
@@ -225,16 +231,11 @@ try:
         confirm_button = popup.find_element(By.CSS_SELECTOR, ".btnYes")
         confirm_button.click()
 
-    # 找到红字提示并重新填写
-    # error_message = driver.find_element(By.ID, "红字提示的id")
-    # if "特殊字符允许输入 .,、《》() -\"“”&/'·及空格符" in error_message.text:
-    #     input_field = driver.find_element(By.ID, "输入框的id")
-    #     input_field.clear()
-    #     input_field.send_keys("北京市")
 except NoSuchElementException:
-    print("没有弹窗")
+    print("模板创建成功")
     # 点击提交按钮
-    submit_button = driver.find_element(By.ID, "submitButtonId")
+    submit_button = WebDriverWait(driver, 10).until(
+        EC.presence_of_element_located((By.CSS_SELECTOR, ".xwDialogConfirm")))
     submit_button.click()
 
 
