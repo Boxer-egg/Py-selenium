@@ -34,8 +34,8 @@ driver.get(config['AgentLoginLink'])
 time.sleep(0.5)
 username = driver.find_element(By.NAME, "username")
 password = driver.find_element(By.NAME, "password")
-username.send_keys(config['username'])
-password.send_keys(config['password'])
+username.send_keys(config['username1'])
+password.send_keys(config['password1'])
 password.send_keys(Keys.RETURN)  # 摁下回车
 
 time.sleep(3)
@@ -234,7 +234,7 @@ try:
 except NoSuchElementException:
     print("模板创建成功")
     # 点击提交按钮
-    submit_button = WebDriverWait(driver, 10).until(
+    submit_button = WebDriverWait(driver, 4).until(
         EC.presence_of_element_located((By.CSS_SELECTOR, ".xwDialogConfirm")))
     submit_button.click()
 
