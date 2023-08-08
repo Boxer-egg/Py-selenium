@@ -1,8 +1,10 @@
 import time
 import yaml
 import logAndjump  # 登录和跳转函数
+import renew  # 续费函数
 from reportDoc import Report
 from selenium import webdriver
+from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
@@ -11,6 +13,7 @@ from selenium.webdriver.common.action_chains import ActionChains
 
 # 创建一个新的浏览器实例
 driver = webdriver.Firefox()
+print('创建成功')
 
 # 打开配置文件
 with open('config.yaml') as f:
@@ -20,9 +23,8 @@ with open('config.yaml') as f:
 # 登录
 driver.get(config['AgentLoginLink'])
 time.sleep(0.5)
-logAndjump.RunAgnetLogin(driver, config['username1'], config['password1'])
+logAndjump.RunLogin(driver, config['username1'], config['password1'])
 
-print('登录成功时间', time.ctime())
 # Report.add_line('登录成功，页面为：' + config['AgentLoginLink'])
 
 # 跳转到购买链接
@@ -32,7 +34,9 @@ time.sleep(1)
 
 driver.execute_script("window.open('about:blank', 'tab2');")
 driver.switch_to.window("tab2")
-logAndjump.jumpHomePage(driver)
+# logAndjump.HomePage(driver)
+driver.get(config['HomePage'])
+
 
 # 搜索商品名
 time.sleep(0.5)
@@ -41,6 +45,7 @@ product_name = f"test{current_time}xn"
 search_box = driver.find_element(By.ID, "prefix")
 search_box.send_keys(product_name + ".com")
 print('搜索产品成功：', product_name)
+real_product_name = product_name + ".com"
 # Report.add_line('搜索产品成功：' + product_name)
 
 # 点击搜索
@@ -118,14 +123,17 @@ sort_button = WebDriverWait(driver, 10).until(
     EC.presence_of_element_located((By.XPATH, '//em[@data-id="apply_date:desc"]')))
 sort_button.click()
 
-renew()
-# 调用续费接口
+renew.renew_function(driver, real_product_name)
+
+# 调用续费函数
 
 
 '''
-你可以使用Python的`assert`语句来测试你的代码。`assert`语句用于断言某个条件是真的，如果条件为假，那么程序会抛出一个`AssertionError`异常。
+你可以使用Python的`assert`语句来测试你的代码。`assert`语句用于断言某个条件是真的，
+如果条件为假，那么程序会抛出一个`AssertionError`异常。
 
-例如，你可以在点击“确认支付”按钮之后，检查按钮是否仍然存在。如果按钮仍然存在，那么说明点击操作可能没有成功。你可以这样写：
+例如，你可以在点击“确认支付”按钮之后，检查按钮是否仍然存在。
+如果按钮仍然存在，那么说明点击操作可能没有成功。你可以这样写：
 
 ```python
 confirm_payment_button = WebDriverWait(driver, 10).until(EC.presence_of_element_located(
