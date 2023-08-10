@@ -1,7 +1,8 @@
 import time
 import yaml
 import logAndjump  # 登录和跳转函数
-import renew  # 续费函数
+from logAndjump import print_time
+# import renew  # 续费函数
 from reportDoc import Report
 from selenium import webdriver
 from selenium.webdriver.common.by import By
@@ -37,38 +38,40 @@ driver.switch_to.window("tab2")
 # logAndjump.HomePage(driver)
 driver.get(config['HomePage'])
 
-
 # 搜索商品名
 time.sleep(0.5)
 current_time = time.strftime("%m%d-%H%M")
 product_name = f"test{current_time}xn"
+Suffix = ".com"  # 这里配置后缀
+real_product_name = product_name + Suffix
+
 search_box = driver.find_element(By.ID, "prefix")
-search_box.send_keys(product_name + ".com")
-print('搜索产品成功：', product_name)
-real_product_name = product_name + ".com"
-# Report.add_line('搜索产品成功：' + product_name)
+search_box.send_keys(real_product_name)  # 使用real_product_name变量
+print('搜索产品成功：', real_product_name, print_time())
+# Report.add_line('搜索产品成功：' + real_product_name)
 
 # 点击搜索
 query_button = driver.find_element(By.ID, "queryDomain")
 query_button.click()
-
+print('搜索按钮点击成功', print_time())
 
 # 加入清单
 add_to_list_button = WebDriverWait(driver, 10).until(EC.element_to_be_clickable(
-    (By.XPATH, f'//a[@data-domain="__{product_name}.com__"]')))
+    (By.XPATH, f'//a[@data-domain="__{real_product_name}__"]')))  # 使用real_product_name变量
 add_to_list_button.click()
+print('已加入购物车', print_time())
 
 time.sleep(1)
 
 # 点击域名清单
 domain_list = driver.find_element(By.ID, "badge-num")
 domain_list.click()
-
+print('点击清单成功', print_time())
 
 time.sleep(1)
 # 确认清单已经加入购买的商品
 WebDriverWait(driver, 10).until(EC.text_to_be_present_in_element(
-    (By.XPATH, '//td[@class="col1"]/div'), product_name + ".com"))
+    (By.XPATH, '//td[@class="col1"]/div'), real_product_name))  # 使用real_product_name变量
 
 
 # 点击立即结算
@@ -80,50 +83,56 @@ checkout_button.click()
 time.sleep(0.5)
 WebDriverWait(driver, 10).until(EC.presence_of_element_located(
     (By.XPATH, config['ReadyToPay'])))
-
+print("结算页面，加载成功", print_time())
 # 单选模板
 time.sleep(1)
 template = driver.find_element(By.XPATH, config['TemplateName'])
 template.click()
-# driver.execute_script("window.scrollBy(0, 360);")
+print('勾选模板成功', print_time())
 
 
 # 勾选同意协议
-# agree_checkbox = driver.find_element(By.XPATH, config['Agreement'])
-# agree_checkbox.click()
-
-# 勾选同意协议
+# 找到一个特定的复选框，确保它在视图中，然后点击它
 checkbox = driver.find_element(By.CSS_SELECTOR, config['Agreement'])
-checkbox.location_once_scrolled_into_view  # scroll to the element
+# By.CSS_SELECTOR作为查找方法
+checkbox.location_once_scrolled_into_view
+# 确保元素（复选框）滚动到视图中。如果元素在当前视图之外（在页面底部，而页面没有完全滚动到底部），
+# 会自动滚动页面，使元素可见。
 actions = ActionChains(driver)
+# 创建了一个新的ActionChains对象。
+# ActionChains是Selenium提供的一个工具，允许你串联多个动作（如点击、拖放等）并一次性执行它们。
 actions.move_to_element(checkbox).click(checkbox).perform()
+print('协议已勾选', print_time())
 
 
 # 点击“提交订单”按钮
 submit_order_button = driver.find_element(
     By.XPATH, '//button/span[text()="提交订单"]')
 submit_order_button.click()
+print("提交按钮点击成功", print_time())
 
 
 # 等待链接变化 或出现“确认支付”按钮
 confirm_payment_button = WebDriverWait(driver, 10).until(EC.presence_of_element_located(
     (By.XPATH, '//button/span[text()="确认支付"]')))
+print('获取按钮：“确认支付”', print_time())
 
 confirm_payment_button.click()
 
-print('支付成功')
+print('支付成功', print_time())
 
 # 打开管理列表，查看产品
 driver.execute_script("window.open('about:blank', 'tab3');")
 driver.switch_to.window("tab3")
 driver.get(config['ManageList'])
 
+time.sleep(2)
 # 时间倒序排列
 sort_button = WebDriverWait(driver, 10).until(
     EC.presence_of_element_located((By.XPATH, '//em[@data-id="apply_date:desc"]')))
 sort_button.click()
 
-renew.renew_function(driver, real_product_name)
+#renew.renew_function(driver, real_product_name)
 
 # 调用续费函数
 
