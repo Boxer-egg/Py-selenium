@@ -11,6 +11,10 @@ with open('config.yaml') as f:
     config = yaml.safe_load(f)
 
 
+def print_time():
+    return time.strftime('%H时%M分%S秒')
+
+
 def RunLogin(driver, username, password):
     '''
     执行代理登录操作
